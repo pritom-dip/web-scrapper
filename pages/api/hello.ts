@@ -7,6 +7,6 @@ type Data = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     const data = req.body;
-    fs.writeFileSync("programming.html", data);
+    fs.writeFileSync("programming.txt", data);
     res.status(200).json({ data: "success" });
 }

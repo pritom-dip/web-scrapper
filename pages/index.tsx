@@ -1,40 +1,51 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 const Home: NextPage = () => {
     const [url, setUrl] = useState<string>("");
+    const [data, setData] = useState<string>("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (url) {
-            setUrl(e.target.value);
-        }
+        setUrl(e.target.value);
     };
 
     const handleClick = () => {
+        console.log(url);
         fetch(url)
-            .then(res => {
-                return res.text();
+            .then(async res => {
+                const resp = await res.text();
+                setData(resp);
+                return resp;
             })
-            .then(async html => {
-                const res = await fetch("/api/hello", {
-                    method: "POST",
-                    body: html,
-                });
-                await res.json();
-            })
+            // .then(async html => {
+            //     const res = await fetch("/api/hello", {
+            //         method: "POST",
+            //         body: html,
+            //     });
+            //     await res.json();
+            // })
             .catch(err => console.log(err));
     };
 
-    const downloadImage = async () => {
-        const imageUrl = "";
+    const handleSubmitClick = async () => {
+        let arr: string[] = [];
+        const images = document.querySelectorAll("img");
 
-        const data = await fetch("/api/multiple-download", {
-            method: "POST",
-            body: `${imageUrl}/img/009/TNDg4NTUxNTRlZTg2MjdhOWQ4NTQ3YTcxZDI3YmQ4ZTJiMWQ3Mw.jpg`,
+        Array.from(images).forEach((item: any) => {
+            const src = item.getAttribute("src");
+            if (!src.includes("/static/")) {
+                arr.push(src);
+            }
         });
 
-        await data.json();
+        if (arr.length > 0) {
+            const res = await fetch("/api/multiple-download", {
+                method: "POST",
+                body: JSON.stringify(arr),
+            });
+            await res.json();
+        }
     };
 
     return (
@@ -54,11 +65,16 @@ const Home: NextPage = () => {
                     minHeight: "100vh",
                 }}
             >
-                <input onChange={handleChange} type={"text"} />
+                <input onChange={handleChange} value={url} type={"text"} />
                 <button onClick={handleClick} style={{ marginTop: "10px" }}>
-                    Click
+                    Get Data
                 </button>
-                <button onClick={downloadImage}>Download!</button>
+
+                <button onClick={handleSubmitClick} style={{ marginTop: "10px" }}>
+                    Submit Data
+                </button>
+
+                <div dangerouslySetInnerHTML={{ __html: data }} />
             </div>
         </div>
     );
