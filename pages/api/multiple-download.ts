@@ -5,7 +5,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 async function downloadImage(url: string) {
     try {
-        const fullUrl = ``; // add your url here
+        const fullUrl = `${process.env.NEXT_PUBLIC_WEB_URL}${url}`;
         const filename = path.basename(fullUrl);
         https.get(fullUrl, function (response) {
             const fileStream = fs.createWriteStream(`files/${filename}`);
@@ -27,9 +27,7 @@ async function downloadImage(url: string) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const images = JSON.parse(req.body);
-        for (let i = 0; i < images.length; i++) {
-            await downloadImage(images[i]);
-        }
+        await Promise.all(images.map((image: string) => downloadImage(image)));
         return res.status(200).json({ data: "success" });
     } catch (err) {
         console.log(err);

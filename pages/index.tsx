@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 
 const Home: NextPage = () => {
     const [url, setUrl] = useState<string>("");
@@ -11,20 +11,14 @@ const Home: NextPage = () => {
     };
 
     const handleClick = () => {
-        console.log(url);
+        if (!url) return;
+
         fetch(url)
             .then(async res => {
                 const resp = await res.text();
                 setData(resp);
                 return resp;
             })
-            // .then(async html => {
-            //     const res = await fetch("/api/hello", {
-            //         method: "POST",
-            //         body: html,
-            //     });
-            //     await res.json();
-            // })
             .catch(err => console.log(err));
     };
 
